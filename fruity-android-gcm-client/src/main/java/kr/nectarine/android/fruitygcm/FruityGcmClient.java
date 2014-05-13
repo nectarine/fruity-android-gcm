@@ -27,14 +27,6 @@ public class FruityGcmClient {
     private final static int REGISTER_BACK_OFF_TIME = 2000;
     public static final String REGISTRATION_ID = "registration_id";
 
-    /*
-        com.google.android.c2dm.intent.REGISTRATION called a little bit slow.
-        Therefore, remember a registration progress so that
-        GcmRegisteredReceiver could handle registration_id expired case correctly.
-    */
-    public static boolean IN_PROCESS = false;
-    private static long registerStartTime = 0, registerEndTime = 0;
-
     public static void start(Activity activity, String senderId, FruityGcmListener fruityGcmListener) {
         start(activity, senderId, true, fruityGcmListener);
     }
@@ -69,12 +61,6 @@ public class FruityGcmClient {
     public static void registerInBackground(final Context context, final String senderId, final FruityGcmListener fruityGcmListener) {
 
         new AsyncTask<Void, Void, String>() {
-
-            @Override
-            protected void onPreExecute() {
-                registerStartTime = System.currentTimeMillis();
-                IN_PROCESS = true;
-            }
 
             @Override
             protected String doInBackground(Void... params) {
@@ -124,18 +110,6 @@ public class FruityGcmClient {
             @Override
             protected void onPostExecute(String regId) {
                 storeRegistrationData(context, regId, senderId);
-                registerEndTime = System.currentTimeMillis();
-
-                // wait for 5 secs before finish process, because the GcmRegisteredReceiver will get REGISTERED slowly
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (registerEndTime > registerStartTime) {
-                            FruityGcmClient.IN_PROCESS = false;
-                        }
-                    }
-                }, 5000);
-
                 if (!regId.isEmpty()) {
                     fruityGcmListener.onDeliverRegistrationId(regId);
                 } else {

@@ -24,11 +24,5 @@ public class GcmRegisteredReceiver extends BroadcastReceiver {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(GcmSharedPreference.RECEIVER_REGISTRATION_ID, registrationId);
         editor.apply();
-
-        if (!FruityGcmClient.IN_PROCESS) {
-            Intent i = new Intent(context.getString(R.string.fruity_action_token_needs_update));
-            i.putExtra(FruityGcmClient.REGISTRATION_ID, registrationId);
-            context.sendBroadcast(i);
-        }
     }
 }
