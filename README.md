@@ -109,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onDeliverRegistrationId(final String regId) {
+            public void onDeliverRegistrationId(final String regId, boolean isNew) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
