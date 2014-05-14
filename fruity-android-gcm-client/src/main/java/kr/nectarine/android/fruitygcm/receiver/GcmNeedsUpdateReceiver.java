@@ -30,10 +30,12 @@ public class GcmNeedsUpdateReceiver extends BroadcastReceiver {
                 }
 
                 @Override
-                public void onDeliverRegistrationId(String regId) {
-                    Intent i = new Intent(context.getString(R.string.fruity_action_token_needs_update));
-                    i.putExtra(FruityGcmClient.REGISTRATION_ID, regId);
-                    context.sendBroadcast(i);
+                public void onDeliverRegistrationId(String regId, boolean isNew) {
+                    if (isNew) {
+                        Intent i = new Intent(context.getString(R.string.fruity_action_token_needs_update));
+                        i.putExtra(FruityGcmClient.REGISTRATION_ID, regId);
+                        context.sendBroadcast(i);
+                    }
                 }
 
                 @Override

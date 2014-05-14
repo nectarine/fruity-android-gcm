@@ -7,7 +7,7 @@ public abstract interface FruityGcmListener {
 
     void onPlayServiceNotAvailable(boolean didPlayHandle);
 
-    void onDeliverRegistrationId(String regId);
+    void onDeliverRegistrationId(String regId, boolean isNew);
 
     void onRegisterFailed();
 }

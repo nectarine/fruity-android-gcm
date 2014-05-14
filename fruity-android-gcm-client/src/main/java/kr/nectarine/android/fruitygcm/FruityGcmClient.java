@@ -54,7 +54,7 @@ public class FruityGcmClient {
             // start real register in background
             registerInBackground(context, senderId, fruityGcmListener);
         } else {
-            fruityGcmListener.onDeliverRegistrationId(regId);
+            fruityGcmListener.onDeliverRegistrationId(regId, false);
         }
     }
 
@@ -109,9 +109,10 @@ public class FruityGcmClient {
 
             @Override
             protected void onPostExecute(String regId) {
+                String currentRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.REGISTRATION_ID, "");
                 storeRegistrationData(context, regId, senderId);
                 if (!regId.isEmpty()) {
-                    fruityGcmListener.onDeliverRegistrationId(regId);
+                    fruityGcmListener.onDeliverRegistrationId(regId, !currentRegId.equalsIgnoreCase(regId));
                 } else {
                     fruityGcmListener.onRegisterFailed();
                 }
