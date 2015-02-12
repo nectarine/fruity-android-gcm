@@ -17,9 +17,6 @@ I tried to minimized what user should do, still you have to implement four thing
 #### 1. Add permissions and BroadcastReceivers to the AndroidManifest.xml
 
 ```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-
 <permission
     android:name="your_package_name.permission.C2D_MESSAGE"
     android:protectionLevel="signature" />
