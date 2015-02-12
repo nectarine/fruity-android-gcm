@@ -11,7 +11,7 @@ import kr.nectarine.android.fruitygcm.interfaces.FruityGcmListener;
 public class MainActivity extends Activity {
 
     TextView tvId;
-    private static final String SENDER_ID = "365545157648";
+    private static final String SENDER_ID = "YOUR_PROJECT_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
