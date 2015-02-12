@@ -4,10 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
-import kr.nectarine.android.fruitygcm.FruityGcmClient;
-import kr.nectarine.android.fruitygcm.R;
 import kr.nectarine.android.fruitygcm.storage.GcmSharedPreference;
 
 public class GcmRegisteredReceiver extends BroadcastReceiver {

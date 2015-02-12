@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="fruity_app_name">FruityAndroidGcmClient</string>
     <string name="fruity_action_token_needs_update">FRUITY_TOKEN_NEEDS_UPDATE</string>
 
 </resources>

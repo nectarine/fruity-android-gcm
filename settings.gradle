@@ -1,1 +1,1 @@
-include ':fruity-android-gcm-client'
+include ':fruity-android-gcm-client', ':sample'

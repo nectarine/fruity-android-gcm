@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,11 +23,15 @@ public class FruityGcmClient {
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private final static int REGISTER_RETRY = 32;
-    private final static int REGISTER_BACK_OFF_TIME = 2000;
+    private final static int REGISTER_BACK_OFF_TIME = 5000;
     public static final String REGISTRATION_ID = "registration_id";
 
     public static void start(Activity activity, String senderId, FruityGcmListener fruityGcmListener) {
         start(activity, senderId, true, fruityGcmListener);
+    }
+
+    public static void clear(Context context) {
+        GcmSharedPreference.get(context).edit().clear().apply();
     }
 
     public static void start(final Activity activity, final String senderId, final boolean shouldPlayHandleError, final FruityGcmListener fruityGcmListener) {
