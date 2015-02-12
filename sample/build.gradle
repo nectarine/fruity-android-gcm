@@ -20,5 +20,6 @@ android {
 
 dependencies {
     compile project(':fruity-android-gcm-client')
+//    compile 'com.github.nectarine:fruity-android-gcm-client:1.0.0'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
