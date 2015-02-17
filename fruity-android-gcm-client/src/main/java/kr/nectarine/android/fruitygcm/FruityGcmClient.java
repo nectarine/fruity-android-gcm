@@ -115,7 +115,7 @@ public class FruityGcmClient {
                 String currentRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.REGISTRATION_ID, "");
                 storeRegistrationData(context, regId, senderId);
                 if (!regId.isEmpty()) {
-                    fruityGcmListener.onDeliverRegistrationId(regId, !currentRegId.equalsIgnoreCase(regId));
+                    fruityGcmListener.onDeliverRegistrationId(regId, !currentRegId.equals(regId));
                 } else {
                     fruityGcmListener.onRegisterFailed();
                 }
