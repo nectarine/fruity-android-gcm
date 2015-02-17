@@ -73,8 +73,16 @@ bintray {
         name = POM_ARTIFACT_ID
         websiteUrl = POM_URL
         vcsUrl = POM_URL
+        desc = "GCM Client which helps you to manage registration Id"
         licenses = ["Apache-2.0"]
         publish = true
+        version {
+            name = VERSION_NAME
+            gpg {
+                sign = true
+                passphrase = properties.getProperty("gpg.passphrase")
+            }
+        }
     }
 }
 
