@@ -34,7 +34,7 @@ install {
                 // Add your description here
                 name POM_NAME
                 url POM_URL
-
+                description POM_DESCRIPTION
                 // Set your license
                 licenses {
                     license {
@@ -72,12 +72,14 @@ bintray {
         repo = "maven"
         name = POM_ARTIFACT_ID
         websiteUrl = POM_URL
-        vcsUrl = POM_URL
+        vcsUrl = POM_SCM_URL
+        issueTrackerUrl = POM_ISSUE_URL
         desc = "GCM Client which helps you to manage registration Id"
         licenses = ["Apache-2.0"]
         publish = true
         version {
             name = VERSION_NAME
+            desc = VERSION_DESC
             gpg {
                 sign = true
                 passphrase = properties.getProperty("gpg.passphrase")

@@ -8,10 +8,10 @@ It is not easy to correctly handle a regstration_id for GCM.
 This library implements all 4 cases which noted in [this post](http://blog.pushbullet.com/2014/02/12/keeping-google-cloud-messaging-for-android-working-reliably-techincal-post/
 )
 
-### Download via jCenter
+### Download via jCenter or Maven Central
 
 ```groovy
-compile 'com.github.nectarine:fruity-android-gcm-client:1.0.0'
+compile 'com.github.nectarine:fruity-android-gcm-client:1.0.2'
 ```
 
 
