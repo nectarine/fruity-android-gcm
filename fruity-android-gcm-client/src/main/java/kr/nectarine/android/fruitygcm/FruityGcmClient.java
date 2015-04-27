@@ -3,17 +3,22 @@ package kr.nectarine.android.fruitygcm;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import kr.nectarine.android.fruitygcm.interfaces.FruityGcmListener;
+import kr.nectarine.android.fruitygcm.rxjava.RetryWithDelay;
 import kr.nectarine.android.fruitygcm.storage.GcmSharedPreference;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by nectarine on 2014. 5. 12..
@@ -23,15 +28,11 @@ public class FruityGcmClient {
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private final static int REGISTER_RETRY = 32;
-    private final static int REGISTER_BACK_OFF_TIME = 5000;
+    private final static int REGISTER_BACK_OFF_TIME = 5;
     public static final String REGISTRATION_ID = "registration_id";
 
     public static void start(Activity activity, String senderId, FruityGcmListener fruityGcmListener) {
         start(activity, senderId, true, fruityGcmListener);
-    }
-
-    public static void clear(Context context) {
-        GcmSharedPreference.get(context).edit().clear().apply();
     }
 
     public static void start(final Activity activity, final String senderId, final boolean shouldPlayHandleError, final FruityGcmListener fruityGcmListener) {
@@ -52,7 +53,6 @@ public class FruityGcmClient {
 
     private static void register(final Context context, final String senderId, final FruityGcmListener fruityGcmListener) {
         String regId = getRegistrationId(context);
-
         if (regId.isEmpty()) {
             // start real register in background
             registerInBackground(context, senderId, fruityGcmListener);
@@ -63,64 +63,52 @@ public class FruityGcmClient {
 
     public static void registerInBackground(final Context context, final String senderId, final FruityGcmListener fruityGcmListener) {
 
-        new AsyncTask<Void, Void, String>() {
+        final SharedPreferences prefs = GcmSharedPreference.get(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(GcmSharedPreference.RECEIVER_REGISTRATION_ID, "");
+        editor.apply();
 
-            @Override
-            protected String doInBackground(Void... params) {
-
-                // clear receiver registration
-                final SharedPreferences prefs = GcmSharedPreference.get(context);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString(GcmSharedPreference.RECEIVER_REGISTRATION_ID, "");
-                editor.apply();
-
-                String regId = "";
-                String receiverRegId;
-                for (int i = 0; i < REGISTER_RETRY; i++) {
-
-                    try {
+        Observable
+                .create(new Observable.OnSubscribe<String>() {
+                    @Override
+                    public void call(Subscriber<? super String> subscriber) {
+                        String regId;
+                        String receiverRegId;
                         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-                        regId = gcm.register(senderId);
-
-                        if (regId != null && !regId.isEmpty()) {
-                            return regId;
-
-                        } else if (!(receiverRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.RECEIVER_REGISTRATION_ID, "")).isEmpty()) {
-                            // register failed, but receiver got registration
-                            return receiverRegId;
+                        try {
+                            regId = gcm.register(senderId);
+                            receiverRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.RECEIVER_REGISTRATION_ID, "");
+                            if (regId != null && !regId.isEmpty()) {
+                                subscriber.onNext(regId);
+                                subscriber.onCompleted();
+                            } else if (!TextUtils.isEmpty(receiverRegId)) {
+                                // register failed, but receiver got registration
+                                subscriber.onNext(receiverRegId);
+                                subscriber.onCompleted();
+                            } else {
+                                subscriber.onError(new RuntimeException("registration failed"));
+                            }
+                        } catch (Exception e) {
+                            subscriber.onError(e);
                         }
-
-                        regId = "";
-
-                    } catch (IOException ex) {
-                        Log.d("tag", "FruityGcmClient > doInBackground : " + ex.getMessage());
-                        // handle exception case
-                        // don't handle in this scope to handle regId empty case at the same time
                     }
-
-                    try {
-                        // retry after 3 secs
-                        Log.d("tag", "FruityGcmClient > doInBackground : retry " + i);
-                        Thread.sleep(REGISTER_BACK_OFF_TIME);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .retryWhen(new RetryWithDelay(REGISTER_RETRY, REGISTER_BACK_OFF_TIME, TimeUnit.SECONDS))
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String regId) {
+                        String currentRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.REGISTRATION_ID, "");
+                        storeRegistrationData(context, regId, senderId);
+                        fruityGcmListener.onDeliverRegistrationId(regId, !currentRegId.equals(regId));
                     }
-
-                }
-                return regId;
-            }
-
-            @Override
-            protected void onPostExecute(String regId) {
-                String currentRegId = GcmSharedPreference.get(context).getString(GcmSharedPreference.REGISTRATION_ID, "");
-                storeRegistrationData(context, regId, senderId);
-                if (!regId.isEmpty()) {
-                    fruityGcmListener.onDeliverRegistrationId(regId, !currentRegId.equals(regId));
-                } else {
-                    fruityGcmListener.onRegisterFailed();
-                }
-            }
-        }.execute(null, null, null);
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        fruityGcmListener.onRegisterFailed();
+                    }
+                });
     }
 
     private static void storeRegistrationData(final Context context, final String regId, final String senderId) {
@@ -138,7 +126,7 @@ public class FruityGcmClient {
         String senderId = prefs.getString(GcmSharedPreference.SENDER_ID, "");
 
         // when sender_id is empty, try to re-register, because SharedPref lost sender_id
-        if (registrationId.isEmpty() || senderId.isEmpty()) {
+        if (TextUtils.isEmpty(registrationId) || TextUtils.isEmpty(senderId)) {
             return "";
         }
         return registrationId;
