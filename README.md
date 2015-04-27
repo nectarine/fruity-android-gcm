@@ -11,7 +11,7 @@ This library implements all 4 cases which noted in [this post](http://blog.pushb
 ### Download via jCenter
 
 ```groovy
-compile 'com.github.nectarine:fruity-android-gcm-client:1.0.2'
+compile 'com.github.nectarine:fruity-android-gcm-client:1.0.3'
 ```
 
 
