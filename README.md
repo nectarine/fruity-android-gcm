@@ -1,7 +1,7 @@
 DEPRECATED
 ==========
 
-Last Google I/O 2015, GCM client is fully redesigned.
+Since play-service 7, a GCM client is fully redesigned.
 It covers whole boilerplate things that fruity-android-gcm cares.
 
 Try to use it!
