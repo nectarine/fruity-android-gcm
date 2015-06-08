@@ -1,3 +1,13 @@
+DEPRECATED
+==========
+
+Last Google I/O 2015, GCM client is fully redesigned.
+It covers whole boilerplate things that fruity-android-gcm cares.
+
+Try to use it!
+
+https://developers.google.com/cloud-messaging/android/client
+
 fruity-android-gcm
 ==================
 
